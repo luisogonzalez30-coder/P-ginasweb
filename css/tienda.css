@@ -114,6 +114,10 @@
 .cfg__tools button { min-width: 42px; height: 42px; padding: 0 12px; border-radius: 100px; background: rgba(255, 255, 255, .85); backdrop-filter: blur(8px); color: var(--ink); font-weight: 700; font-size: 15px; box-shadow: 0 4px 14px rgba(0, 0, 0, .15); transition: .25s; }
 .cfg__tools button:hover { background: #fff; transform: scale(1.06); }
 #openAll { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.cfg__views { position: absolute; left: 14px; right: 14px; bottom: 42px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cfg__views button { padding: 8px 14px; border-radius: 100px; background: rgba(255, 255, 255, .85); backdrop-filter: blur(8px); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); box-shadow: 0 3px 10px rgba(0, 0, 0, .12); transition: .25s; }
+.cfg__views button:hover { background: #fff; }
+.cfg__views button.on { background: var(--ink); color: var(--cream); }
 .cfg__hint { position: absolute; left: 18px; bottom: 16px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(23, 17, 12, .55); pointer-events: none; }
 .cfg__nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 30px; text-align: center; color: var(--ink); }
 .cfg__panel { background: #fbf5ea; color: var(--ink); padding: 30px 30px 28px; display: flex; flex-direction: column; gap: 22px; }

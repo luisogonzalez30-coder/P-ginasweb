@@ -11,7 +11,8 @@
   const minPrice = p => Math.min.apply(null, Object.values(p.prices));
   function describe(p, c) {
     const parts = [p.name, c.width + ' cm', 'madera ' + A.woods[c.wood].name, 'frente ' + A.fronts[c.front].name.toLowerCase(), A.bases[c.base].name.toLowerCase()];
-    if (p.hasDrawers) parts.push(c.drawers ? 'con cajones' : 'sin cajones');
+    if (p.hasDrawers && c.front === 'cane') parts.push(c.drawers ? 'con cajones' : 'sin cajones');
+    if (p.hasLed && c.led) parts.push('con luz LED inferior');
     return parts;
   }
   function message(p, c, pay) {
@@ -64,6 +65,7 @@
   $('#faq-list').innerHTML = A.faq.map(f => '<details class="reveal"><summary>' + f[0] + '</summary><p>' + f[1] + '</p></details>').join('');
 
   /* ---------- configurador ---------- */
+  let opened = false;
   const tabs = $('#cfgTabs'), panel = $('#cfgPanel'), canvas = $('#cfgCanvas');
   let stage = null, cur = A.products[0], cfg = Object.assign({}, cur.defaults);
 
@@ -80,18 +82,21 @@
 
   const optBtns = (key, ids, map) =>
     '<div class="seg" data-key="' + key + '">' + ids.map(id => '<button data-v="' + id + '" class="' + (String(cfg[key]) === String(id) ? 'on' : '') + '">' + map(id) + '</button>').join('') + '</div>';
+  const group = (title, html, show) => show === false ? '' : '<div class="opt"><h4>' + title + '</h4>' + html + '</div>';
 
   function render() {
     const p = cur;
+    if (p.hasDrawers && cfg.front !== 'cane') cfg.drawers = false;
     panel.innerHTML =
       '<div class="cfg__title"><small>' + p.kicker + '</small>' + p.name + '</div>' +
-      '<div class="opt"><h4>Madera <em>' + A.woods[cfg.wood].name + '</em></h4><div class="sw" data-key="wood">' +
+      '<div class="opt"><h4>Acabado <em>' + A.woods[cfg.wood].name + '</em></h4><div class="sw" data-key="wood">' +
       Object.keys(A.woods).map(k => '<button data-v="' + k + '" class="' + (cfg.wood === k ? 'on' : '') + '" style="background:' + A.woods[k].hex + '" aria-label="' + A.woods[k].name + '"></button>').join('') + '</div></div>' +
-      '<div class="opt"><h4>Ancho <em>' + cfg.width + ' cm</em></h4>' + optBtns('width', p.widths, w => w + ' cm') + '</div>' +
-      '<div class="opt"><h4>Frente</h4>' + optBtns('front', p.frontsAllowed, id => A.fronts[id].name) + '</div>' +
-      '<div class="opt"><h4>Base</h4>' + optBtns('base', p.basesAllowed, id => A.bases[id].name) + '</div>' +
-      (p.hasDrawers ? '<div class="opt"><h4>Cajones superiores</h4>' + optBtns('drawers', [true, false], v => v ? 'Con cajones' : 'Sin cajones') + '</div>' : '') +
-      '<div class="opt"><h4>Herrajes</h4>' + optBtns('handle', ['brass', 'wood'], id => A.handles[id].name) + '</div>' +
+      group('Largo <em>' + cfg.width + ' cm</em>', optBtns('width', p.widths, w => w + ' cm'), p.widths.length > 1) +
+      group('Frente', optBtns('front', p.frontsAllowed, id => A.fronts[id].name), p.frontsAllowed.length > 1) +
+      group('Base', optBtns('base', p.basesAllowed, id => A.bases[id].name), p.basesAllowed.length > 1) +
+      group('Cajones superiores', optBtns('drawers', [true, false], v => v ? 'Con cajones' : 'Sin cajones'), p.hasDrawers && cfg.front === 'cane') +
+      group('Luz LED inferior', optBtns('led', [true, false], v => v ? 'Encendida' : 'Apagada'), !!p.hasLed) +
+      group('Herrajes', optBtns('handle', ['brass', 'wood'], id => A.handles[id].name), p.type !== 'tv' && !(p.type === 'aparador' && cfg.front === 'slats')) +
       '<div class="cfg__sum"><ul>' + describe(p, cfg).slice(1).map(s => '<li>' + s + '</li>').join('') + '</ul>' +
       '<div class="cfg__price"><span>Tu diseño</span><strong id="cfgPrice">' + clp(priceOf(p, cfg)) + '</strong></div>' +
       '<div class="cfg__ctas"><button class="btn btn--mp btn--block" id="payMp">Pagar con Mercado Pago</button>' +
@@ -113,12 +118,13 @@
     const b = e.target.closest('button[data-v]');
     if (b) {
       const key = b.parentElement.dataset.key; let v = b.dataset.v;
-      if (key === 'width') v = +v; if (key === 'drawers') v = v === 'true';
+      if (key === 'width') v = +v; if (key === 'drawers' || key === 'led') v = v === 'true';
       cfg[key] = v;
+      if (key === 'front') { render(); apply(true); return; }
       b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
       const h = b.parentElement.previousElementSibling; // actualiza etiqueta
-      if (key === 'width') h.querySelector('em').textContent = v + ' cm';
-      if (key === 'wood') h.querySelector('em').textContent = A.woods[v].name;
+      if (key === 'width' && h) h.querySelector('em').textContent = v + ' cm';
+      if (key === 'wood' && h) h.querySelector('em').textContent = A.woods[v].name;
       apply(true); return;
     }
     if (e.target.id === 'payMp') {
@@ -131,15 +137,24 @@
     cur = A.products.find(p => p.id === id) || A.products[0];
     cfg = Object.assign({}, cur.defaults);
     render(); apply(false);
-    if (stage) { stage.resetView(); stage.getCabinet().openAll(false); }
+    if (stage) { stage.resetView(); stage.getCabinet().openAll(false); opened = false; $('#openAll').textContent = 'Abrir'; vbtns.forEach(x => x.classList.remove('on')); }
   }
 
   $('#zIn').addEventListener('click', () => stage && stage.setZoom(stage.getZoom() - 0.15));
   $('#zOut').addEventListener('click', () => stage && stage.setZoom(stage.getZoom() + 0.15));
   $('#resetView').addEventListener('click', () => stage && stage.resetView());
-  let opened = false;
   $('#openAll').addEventListener('click', e => {
     if (!stage) return; opened = !opened; stage.getCabinet().openAll(opened); e.target.textContent = opened ? 'Cerrar' : 'Abrir';
+  });
+  const vbtns = document.querySelectorAll('[data-view]');
+  vbtns.forEach(b => b.addEventListener('click', () => {
+    if (!stage) return; stage.setView(b.dataset.view);
+    vbtns.forEach(x => x.classList.toggle('on', x === b));
+  }));
+  $('#dimsBtn').addEventListener('click', e => { if (!stage) return; const on = e.currentTarget.classList.toggle('on'); stage.setDims(on); });
+  $('#snapBtn').addEventListener('click', () => {
+    if (!stage) return; const a = document.createElement('a');
+    a.href = stage.snapshot(); a.download = (cur.id + '-' + cfg.width + 'cm.jpg'); a.click();
   });
   select(A.products[0].id);
 

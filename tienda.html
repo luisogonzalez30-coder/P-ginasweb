@@ -93,7 +93,7 @@
     <header class="sec__head reveal">
       <p class="eyebrow">Configurador 3D</p>
       <h2>Arma tu diseño en tiempo real.</h2>
-      <p>Gira el mueble arrastrando. Toca una puerta para abrirla. El precio se actualiza al instante.</p>
+      <p>Gira el mueble, abre puertas y cajones, mira las medidas y guarda una foto de tu diseño. El precio se actualiza al instante.</p>
     </header>
     <div class="cfg reveal">
       <div class="cfg__tabs" id="cfgTabs" role="tablist"></div>
@@ -106,7 +106,10 @@
             <button id="openAll" aria-label="Abrir o cerrar puertas">Abrir</button>
             <button id="resetView" aria-label="Restablecer vista">⟲</button>
           </div>
-          <p class="cfg__hint">Arrastra para girar · toca una puerta para abrirla</p>
+          <div class="cfg__views" role="toolbar" aria-label="Vistas">
+            <button data-view="front">Frente</button><button data-view="side">Perfil</button><button data-view="top">Superior</button><button id="dimsBtn">Medidas</button><button id="snapBtn">Guardar foto</button>
+          </div>
+          <p class="cfg__hint">Arrastra para girar · toca puertas y cajones para abrirlos</p>
           <p class="cfg__nogl" id="noGl" hidden>Tu dispositivo no soporta 3D. Escríbenos y te mostramos fotos y medidas.</p>
         </div>
         <aside class="cfg__panel" id="cfgPanel"></aside>

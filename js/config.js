@@ -23,14 +23,16 @@ window.AED = {
   /* ---------- Opciones de materialidad (recargo sobre el precio base) ---------- */
   // Los precios son fijos por producto y ancho (ver products[].prices). Las opciones visuales no alteran el precio.
   woods: {
-    natural: { name: 'Natural',  hex: '#d8a566' },
+    natural: { name: 'Natural',  hex: '#d6a46a' },
+    lenga:   { name: 'Lenga',    hex: '#e3bb8c' },
     miel:    { name: 'Miel',     hex: '#c27f40' },
+    roble:   { name: 'Roble',    hex: '#a85f33' },
     nogal:   { name: 'Nogal',    hex: '#7d4f31' },
     ebano:   { name: 'Ébano',    hex: '#43332b' }
   },
   fronts: {
     cane:  { name: 'Junco',    add: 0 },
-    slats: { name: 'Listones', add: 0 },
+    slats: { name: 'Listones acanalados', add: 0 },
     plain: { name: 'Liso',     add: 0 }
   },
   bases: {
@@ -73,11 +75,12 @@ window.AED = {
       desc: 'Rack flotante Boho de lenga con puertas de junco. Libera el piso y ordena tu living.',
       img: 'img/rack-flotante-bosque.jpg',
       hover: 'img/flotante-real.jpg',
-      defaults: { width: 180, wood: 'natural', front: 'cane', base: 'floating', handle: 'brass', drawers: false, depth: 35, height: 45 },
+      defaults: { width: 180, wood: 'lenga', front: 'cane', base: 'floating', handle: 'brass', drawers: false, led: false, depth: 35, height: 45 },
       widths: [180, 200],
       frontsAllowed: ['cane'],
       basesAllowed: ['floating'],
       hasDrawers: false,
+      hasLed: true,
       prices: { 180: 800000, 200: 900000 },
       specs: ['Lenga con puertas de junco', 'Largo 180 o 200 cm · Fondo 35 cm · Alto 45 cm', 'Incluye kit de anclaje']
     },
@@ -90,7 +93,7 @@ window.AED = {
       desc: 'Rack de TV en roble nacional vaporizado, con nicho abierto para equipos y tres cajones amplios.',
       img: 'img/rack-tv-nativo-ambiente.jpg',
       hover: 'img/rack-tv-nativo-real.jpg',
-      defaults: { width: 150, wood: 'miel', front: 'plain', base: 'floor', handle: 'wood', drawers: false, depth: 45, height: 65 },
+      defaults: { width: 150, wood: 'roble', front: 'plain', base: 'floor', handle: 'wood', drawers: false, depth: 45, height: 65 },
       widths: [150, 200],
       frontsAllowed: ['plain'],
       basesAllowed: ['floor'],
