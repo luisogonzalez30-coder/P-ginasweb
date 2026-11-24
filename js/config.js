@@ -13,6 +13,8 @@ window.AED = {
   // WhatsApp +56 9 7242 2825 (formato internacional sin "+")
   whatsapp: '56972422825',
 
+  instagram: { url: 'https://www.instagram.com/germanarredondonativos', handle: '@germanarredondonativos' },
+
   // ⚠️ REEMPLAZAR: link de pago de Mercado Pago (checkout pro / link de pago).
   // Si queda vacío, el botón "Pagar con Mercado Pago" abre WhatsApp con el pedido ya armado.
   mercadoPagoUrl: '',
