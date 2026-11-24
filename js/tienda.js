@@ -7,8 +7,10 @@
   const waUrl = msg => 'https://wa.me/' + A.whatsapp + '?text=' + encodeURIComponent(msg);
 
   /* ---------- precio ---------- */
-  const priceOf = (p, c) => p.prices[c.width];
+  const priceOf = (p, c) => (p.prices[c.width] == null ? null : p.prices[c.width]);
+  const hasPrice = p => Object.keys(p.prices).length > 0;
   const minPrice = p => Math.min.apply(null, Object.values(p.prices));
+  const priceTxt = (p, c) => (priceOf(p, c) == null ? 'A cotizar' : clp(priceOf(p, c)));
   function describe(p, c) {
     const parts = [p.name, c.width + ' cm', 'madera ' + A.woods[c.wood].name, 'frente ' + A.fronts[c.front].name.toLowerCase(), A.bases[c.base].name.toLowerCase()];
     if (p.hasDrawers && c.front === 'cane') parts.push(c.drawers ? 'con cajones' : 'sin cajones');
@@ -17,7 +19,7 @@
   }
   function message(p, c, pay) {
     return 'Hola Arredondo Estudio & Diseño 👋\n' + (pay ? 'Quiero pagar con Mercado Pago este diseño:' : 'Quiero cotizar este diseño:') + '\n• ' +
-      describe(p, c).join('\n• ') + '\nPrecio: ' + clp(priceOf(p, c)) + ' (envío gratis)\n¿Me confirman plazo y disponibilidad?';
+      describe(p, c).join('\n• ') + (priceOf(p, c) == null ? '\nQuiero conocer precio y plazo (envío gratis).' : '\nPrecio: ' + clp(priceOf(p, c)) + ' (envío gratis)\n¿Me confirman plazo y disponibilidad?');
   }
 
   /* ---------- WhatsApp genérico ---------- */
@@ -47,10 +49,10 @@
     const el = document.createElement('article'); el.className = 'card reveal'; el.style.transitionDelay = (i * 90) + 'ms';
     el.innerHTML =
       '<div class="card__media"><span class="card__badge">0' + (i + 1) + ' · ' + p.kicker + '</span>' +
-      '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy"><img src="' + p.hover + '" alt="' + p.name + ' en ambiente" loading="lazy"></div>' +
+      '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy">' + (p.hover ? '<img src="' + p.hover + '" alt="' + p.name + ' en ambiente" loading="lazy">' : '') + '</div>' +
       '<div class="card__body"><p class="card__kicker">' + p.tagline + '</p><h3>' + p.name + '</h3><p class="card__desc">' + p.desc + '</p>' +
       '<ul class="card__specs">' + p.specs.map(s => '<li>' + s + '</li>').join('') + '</ul>' +
-      '<div class="card__foot"><div class="price"><small>' + (Object.keys(p.prices).length > 1 ? 'Desde' : 'Precio') + '</small><strong>' + clp(minPrice(p)) + '</strong></div>' +
+      '<div class="card__foot"><div class="price">' + (hasPrice(p) ? '<small>' + (Object.keys(p.prices).length > 1 ? 'Desde' : 'Precio') + '</small><strong>' + clp(minPrice(p)) + '</strong>' : '<small>Precio</small><strong>A cotizar</strong>') + '</div>' +
       '<div class="card__actions"><button class="btn btn--primary" data-cfg="' + p.id + '">Personalizar en 3D</button>' +
       '<a class="btn btn--line" target="_blank" rel="noopener" href="' + waUrl('Hola 👋 Me interesa el ' + p.name + '. ¿Me envían información?') + '">Consultar por WhatsApp</a></div></div></div>';
     cards.appendChild(el);
@@ -96,10 +98,10 @@
       group('Base', optBtns('base', p.basesAllowed, id => A.bases[id].name), p.basesAllowed.length > 1) +
       group('Cajones superiores', optBtns('drawers', [true, false], v => v ? 'Con cajones' : 'Sin cajones'), p.hasDrawers && cfg.front === 'cane') +
       group('Luz LED inferior', optBtns('led', [true, false], v => v ? 'Encendida' : 'Apagada'), !!p.hasLed) +
-      group('Herrajes', optBtns('handle', ['brass', 'wood'], id => A.handles[id].name), p.type !== 'tv' && !(p.type === 'aparador' && cfg.front === 'slats')) +
+      group('Herrajes', optBtns('handle', ['brass', 'wood'], id => A.handles[id].name), p.type === 'aparador' || p.type === 'flotante') +
       '<div class="cfg__sum"><ul>' + describe(p, cfg).slice(1).map(s => '<li>' + s + '</li>').join('') + '</ul>' +
-      '<div class="cfg__price"><span>Tu diseño</span><strong id="cfgPrice">' + clp(priceOf(p, cfg)) + '</strong></div>' +
-      '<div class="cfg__ctas"><button class="btn btn--mp btn--block" id="payMp">Pagar con Mercado Pago</button>' +
+      '<div class="cfg__price"><span>Tu diseño</span><strong id="cfgPrice">' + priceTxt(p, cfg) + '</strong></div>' +
+      '<div class="cfg__ctas">' + (priceOf(p, cfg) == null ? '' : '<button class="btn btn--mp btn--block" id="payMp">Pagar con Mercado Pago</button>') +
       '<a class="btn btn--wa btn--block" id="quoteWa" target="_blank" rel="noopener" href="' + waUrl(message(p, cfg)) + '">Cotizar por WhatsApp</a></div>' +
       '<p class="cfg__fine">Envío gratis a todo Chile · Otras medidas y acabados se cotizan</p></div>';
     tabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b.dataset.id === p.id));
@@ -108,7 +110,7 @@
   function apply(bump) {
     if (stage) stage.setCabinet(Object.assign({ type: cur.type }, cfg));
     const pr = $('#cfgPrice'), q = $('#quoteWa');
-    pr.textContent = clp(priceOf(cur, cfg));
+    pr.textContent = priceTxt(cur, cfg);
     if (bump) { pr.classList.add('bump'); setTimeout(() => pr.classList.remove('bump'), 350); }
     q.href = waUrl(message(cur, cfg));
     const t = $('.cfg__sum ul'); t.innerHTML = describe(cur, cfg).slice(1).map(s => '<li>' + s + '</li>').join('');

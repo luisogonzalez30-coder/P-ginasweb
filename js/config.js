@@ -32,7 +32,7 @@ window.AED = {
   },
   fronts: {
     cane:  { name: 'Junco',    add: 0 },
-    slats: { name: 'Listones acanalados', add: 0 },
+    slats: { name: 'Puertas ranuradas', add: 0 },
     plain: { name: 'Liso',     add: 0 }
   },
   bases: {
@@ -57,14 +57,30 @@ window.AED = {
       tagline: 'Puertas de junco, cajones y herrajes de latón.',
       desc: 'Buffet de diseño Boho con frentes de junco y cajones superiores. Almacenaje de sobra y presencia de pieza de colección.',
       img: 'img/aparador-atacama.jpg',
-      hover: 'img/buffet-listones.jpg',
       defaults: { width: 180, wood: 'natural', front: 'cane', base: 'legs', handle: 'brass', drawers: true, depth: 45, height: 90 },
       widths: [180],
-      frontsAllowed: ['cane', 'slats'],
+      frontsAllowed: ['cane'],
       basesAllowed: ['legs'],
       hasDrawers: true,
       prices: { 180: 1200000 },
       specs: ['Largo 180 cm · Fondo 45 cm · Alto 90 cm', 'Diseño Boho con puertas de junco', 'Otras medidas: cotiza por WhatsApp']
+    },
+    {
+      id: 'nordico',
+      type: 'nordico',
+      name: 'Aparador Nórdico Cascada',
+      kicker: 'Línea Nórdica',
+      tagline: 'Puertas ranuradas y cubierta en cascada.',
+      desc: 'Diseño nórdico de puertas ranuradas con cierre push to open y estructura cascada: las vetas de la madera nativa cruzan desde un lateral, pasan por la cubierta y terminan en el otro lateral, para apreciar vetas continuas en la madera que elijas.',
+      img: 'img/nordico-real.jpg',
+      hover: 'img/buffet-listones.jpg',
+      defaults: { width: 180, wood: 'lenga', front: 'slats', base: 'legs', handle: 'wood', drawers: false, depth: 45, height: 75 },
+      widths: [150, 180, 200],
+      frontsAllowed: ['slats'],
+      basesAllowed: ['legs'],
+      hasDrawers: false,
+      prices: {},
+      specs: ['Cierre push to open (sin tiradores)', 'Estructura cascada: veta continua', 'Madera nativa y medidas a elegir']
     },
     {
       id: 'flotante',
@@ -104,6 +120,7 @@ window.AED = {
   ],
 
   gallery: [
+    { src: 'img/nordico-real.jpg', alt: 'Aparador nórdico de puertas ranuradas con cubierta en cascada' },
     { src: 'img/flotante-real.jpg', alt: 'Rack flotante Boho de lenga con puertas de junco' },
     { src: 'img/flotante-dormitorio.jpg', alt: 'Rack flotante de junco en dormitorio' },
     { src: 'img/buffet-listones.jpg', alt: 'Buffet de listones en dormitorio rústico' },

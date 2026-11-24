@@ -73,6 +73,6 @@
     p.needsUpdate = true;
     glow.intensity = 1.5 + Math.sin(t * 1.3) * 0.15;
   });
-  show(1);
+  show(2);
   setInterval(() => { if (!userPicked && !go.done) show((idx + 1) % SETS.length); }, 6500);
 })();

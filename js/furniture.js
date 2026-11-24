@@ -80,6 +80,13 @@
     return (_wood[k] = mkTex(c));
   }
 
+  function woodBaseV(key) {
+    const k = 'v' + key;
+    if (_wood[k]) return _wood[k];
+    const src = woodBase(key).image, c = document.createElement('canvas'); c.width = c.height = 512;
+    const x = c.getContext('2d'); x.translate(256, 256); x.rotate(Math.PI / 2); x.drawImage(src, -256, -256);
+    return (_wood[k] = mkTex(c));
+  }
   const _mat = {};
   function mat(key, tex, rx, ry, shade, rough) {
     shade = shade || 1;
@@ -89,6 +96,7 @@
     return (_mat[k] = new T.MeshStandardMaterial({ map: t, roughness: rough || 0.5, metalness: 0, envMapIntensity: 0.45, color: new T.Color(shade, shade, shade) }));
   }
   function woodMat(key, a, b, shade) { return mat(key + 'w', woodBase(key), Math.max(0.3, a / 0.7), Math.max(0.3, b / 0.7), shade); }
+  function woodMatV(key, a, b, shade) { return mat(key + 'wv', woodBaseV(key), Math.max(0.3, a / 0.7), Math.max(0.3, b / 0.7), shade); }
   function plankMat(key, orient, uLen, vLen, shade) {
     const rx = orient === 'h' ? uLen / 1.0 : uLen / 0.48, ry = orient === 'h' ? vLen / 0.48 : vLen / 1.0;
     return mat(key + orient, plankBase(key, orient), Math.max(0.3, rx), Math.max(0.3, ry), shade, 0.42);
@@ -156,13 +164,13 @@
      cfg: { type:'aparador'|'flotante'|'tv', width, depth, height (cm), wood,
             front:'cane'|'slats'|'plain', base:'legs'|'floating'|'floor',
             handle:'brass'|'wood', drawers:boolean, led:boolean, floatY:m } */
-  const DEF = { aparador: [45, 90], flotante: [35, 45], tv: [45, 65] };
+  const DEF = { aparador: [45, 90], nordico: [45, 75], flotante: [35, 45], tv: [45, 65] };
 
   function buildCabinet(cfg) {
     const type = cfg.type, wk = cfg.wood;
     const dd = DEF[type] || DEF.aparador;
     const W = cfg.width / 100, D = (cfg.depth || dd[0]) / 100, Htot = (cfg.height || dd[1]) / 100;
-    const slatsStyle = type === 'aparador' && cfg.front === 'slats';
+    const slatsStyle = type === 'nordico' || (type === 'aparador' && cfg.front === 'slats');
     const legH = cfg.base === 'legs' ? (slatsStyle ? 0.2 : 0.16) : cfg.base === 'floor' ? 0.05 : 0;
     const bodyH = Htot - legH;
     const root = new T.Group();
@@ -175,7 +183,7 @@
     }
     const box = (parent, w, h, d, m, x, y, z, s) => add(parent, new T.BoxGeometry(w, h, d), m, x, y, z, s);
     const inner = woodMat(wk, W, D, 0.62);
-    const isTV = type === 'tv', isFlot = type === 'flotante';
+    const isTV = type === 'tv', isFlot = type === 'flotante' || type === 'nordico';
 
     /* ---- carcasa ---- */
     const tt = isTV ? 0.04 : isFlot ? 0.03 : 0.028;   // tapa
@@ -188,7 +196,7 @@
       [-1, 1].forEach(s => box(body, ts, bodyH - tt, D, plankMat(wk, 'v', D, bodyH), s * (W / 2 - ts / 2), (bodyH - tt) / 2, 0));
     } else {
       box(body, W + 2 * ovS, tt, D + ovF, woodMat(wk, W, D), 0, bodyH - tt / 2, ovF / 2);
-      [-1, 1].forEach(s => box(body, ts, bodyH - tt, D, woodMat(wk, D, bodyH), s * (W / 2 - ts / 2), (bodyH - tt) / 2, 0));
+      [-1, 1].forEach(s => box(body, ts, bodyH - tt, D, woodMatV(wk, D, bodyH), s * (W / 2 - ts / 2), (bodyH - tt) / 2, 0));
     }
     box(body, W - 2 * ts, 0.025, D, inner, 0, 0.0125, 0);                                  // base
     box(body, W - 2 * ts, bodyH - tt - 0.025, 0.012, inner, 0, (bodyH - tt + 0.025) / 2, -D / 2 + 0.006); // fondo
@@ -243,6 +251,7 @@
 
     /* ---- zonas ---- */
     let doorsTop = yTop, doorsBot = yBot;
+    if (type === 'nordico') { box(body, Wi, 0.05, 0.02, woodMat(wk, Wi, 0.05), 0, yBot + 0.025, z0 - 0.012); doorsBot = yBot + 0.05; }
     if (type === 'aparador' && cfg.front === 'cane' && cfg.drawers) {
       const dh = 0.15, n = W > 1.5 ? 4 : 3, gap = 0.004;
       const dTop = yTop, dBot = yTop - dh; doorsTop = dBot - 0.004;
@@ -266,7 +275,7 @@
       for (let i = 0; i < nDoors; i++) {
         const left = slatsStyle ? i < 2 : i % 2 === 0;
         const dw = dW - 0.004, xl = -Wi / 2 + i * dW + 0.002;
-        const pivot = new T.Group(); pivot.position.set(left ? xl : xl + dw, dY, z0 - 0.004 + TH / 2 - 0.004);
+        const pivot = new T.Group(); pivot.position.set(left ? xl : xl + dw, dY, z0 - (type === 'nordico' ? 0.022 : 0.004) + TH / 2 - 0.004);
         const door = new T.Group(); door.position.x = left ? dw / 2 : -dw / 2; pivot.add(door);
 
         if (cfg.front === 'cane') {
