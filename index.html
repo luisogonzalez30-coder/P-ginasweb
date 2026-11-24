@@ -11,39 +11,37 @@
 <meta property="og:image" content="img/portada.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/landing.css">
 <link rel="preload" as="image" href="img/portada.jpg">
 </head>
 <body>
-  <div class="fallback" aria-hidden="true"></div>
-  <canvas id="stage" aria-label="Mueble de madera nativa en 3D, arrastra para girar"></canvas>
-  <div class="vignette"></div>
+  <div class="cover"><img id="coverImg" src="img/portada.jpg" alt="Arredondo Estudio & Diseño — Carpintería Nativa • Chile" fetchpriority="high"></div>
+  <div class="shade"></div>
 
-  <header class="top">
-    <span class="mono" aria-label="AED">AED</span>
-    <a class="skip" href="tienda.html">Saltar intro</a>
-  </header>
+  <a class="skip" href="tienda.html">Saltar intro</a>
 
-  <main class="intro">
-    <p class="kicker reveal">Carpintería Nativa • Chile</p>
-    <h1 class="reveal">ARREDONDO<span>ESTUDIO &amp; DISEÑO</span></h1>
-    <p class="lede reveal">Muebles de madera nativa, diseñados contigo y fabricados a tu medida.</p>
-    <a id="enter" class="cta reveal" href="tienda.html">
+  <div class="cta-wrap">
+    <a id="enter" class="cta" href="tienda.html">
       Entrar a la colección
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
-    <p class="perks reveal"><span><b>◆</b> Envío gratis</span><span><b>◆</b> Mercado Pago</span><span><b>◆</b> Diseño 3D a medida</span></p>
-  </main>
-
-  <nav class="models" id="models" aria-label="Modelos"></nav>
-  <p class="hint">Arrastra para girar · toca una puerta para abrirla</p>
+    <p class="perks"><span><b>◆</b> Envío gratis</span><span><b>◆</b> Mercado Pago</span><span><b>◆</b> Diseño 3D a medida</span></p>
+  </div>
   <div id="curtain"></div>
 
-  <script src="js/vendor/three.min.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/furniture.js"></script>
-  <script src="js/landing.js"></script>
+  <script>
+    (function () {
+      var enter = document.getElementById('enter'), curtain = document.getElementById('curtain'), img = document.getElementById('coverImg'), done = false;
+      function go(e) {
+        if (e) e.preventDefault(); if (done) return; done = true;
+        img.classList.add('zoom'); curtain.classList.add('on');
+        setTimeout(function () { location.href = 'tienda.html'; }, 900);
+      }
+      enter.addEventListener('click', go);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(e); });
+    })();
+  </script>
 </body>
 </html>
