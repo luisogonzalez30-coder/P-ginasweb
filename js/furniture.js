@@ -96,9 +96,9 @@
 
   function buildCabinet(cfg) {
     const spec = BODY[cfg.type] || BODY.aparador;
-    const W = cfg.width / 100, D = spec.d, t = 0.025, wk = cfg.wood;
+    const W = cfg.width / 100, D = cfg.depth ? cfg.depth / 100 : spec.d, t = 0.025, wk = cfg.wood;
     const legH = cfg.base === 'legs' ? 0.16 : cfg.base === 'floor' ? 0.05 : 0;
-    const bodyH = spec.h;
+    const bodyH = cfg.height ? cfg.height / 100 - legH : spec.h;
     const root = new T.Group();
     const body = new T.Group(); body.position.y = legH; root.add(body);
     const doors = [];
@@ -301,6 +301,7 @@
       const needW = cabinet.width * (o.fit || 1.55), needH = cabinet.height * 2.4 + 0.3;
       const rW = needW / (2 * Math.tan(fov / 2) * aspect), rH = needH / (2 * Math.tan(fov / 2));
       cam.baseR = Math.max(rW, rH, 1.8);
+      scene.fog.near = cam.baseR * 1.6; scene.fog.far = cam.baseR * 4.5;
       cam.target.set(0, (o.floatY != null && cabinet.floating ? o.floatY : 0) + cabinet.height * 0.55, 0.15);
     }
 

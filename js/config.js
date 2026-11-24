@@ -10,8 +10,8 @@ window.AED = {
     domain: 'arredondoestudioydiseño.cl'
   },
 
-  // ⚠️ REEMPLAZAR: número en formato internacional sin "+" ni espacios (Chile = 56 + celular)
-  whatsapp: '56900000000',
+  // WhatsApp +56 9 7242 2825 (formato internacional sin "+")
+  whatsapp: '56972422825',
 
   // ⚠️ REEMPLAZAR: link de pago de Mercado Pago (checkout pro / link de pago).
   // Si queda vacío, el botón "Pagar con Mercado Pago" abre WhatsApp con el pedido ya armado.
@@ -21,27 +21,28 @@ window.AED = {
   anticipoPct: 50,
 
   /* ---------- Opciones de materialidad (recargo sobre el precio base) ---------- */
+  // Los precios son fijos por producto y ancho (ver products[].prices). Las opciones visuales no alteran el precio.
   woods: {
-    natural: { name: 'Natural',  hex: '#d8a566', pct: 0    },
-    miel:    { name: 'Miel',     hex: '#c27f40', pct: 0    },
-    nogal:   { name: 'Nogal',    hex: '#7d4f31', pct: 0.06 },
-    ebano:   { name: 'Ébano',    hex: '#43332b', pct: 0.08 }
+    natural: { name: 'Natural',  hex: '#d8a566' },
+    miel:    { name: 'Miel',     hex: '#c27f40' },
+    nogal:   { name: 'Nogal',    hex: '#7d4f31' },
+    ebano:   { name: 'Ébano',    hex: '#43332b' }
   },
   fronts: {
-    cane:  { name: 'Ratán',    add: 0     },
-    slats: { name: 'Listones', add: 35000 },
-    plain: { name: 'Liso',     add: -30000 }
+    cane:  { name: 'Junco',    add: 0 },
+    slats: { name: 'Listones', add: 0 },
+    plain: { name: 'Liso',     add: 0 }
   },
   bases: {
     legs:     { name: 'Con patas',  add: 0 },
-    floating: { name: 'Flotante',   add: 15000 },
+    floating: { name: 'Flotante',   add: 0 },
     floor:    { name: 'Zócalo',     add: 0 }
   },
   handles: {
     brass: { name: 'Latón',  add: 0 },
     wood:  { name: 'Madera', add: 0 }
   },
-  drawersAdd: 70000,
+  drawersAdd: 0,
 
   /* ---------- Productos ----------
      ⚠️ LOS PRECIOS SON DE EJEMPLO (CLP). Ajusta base.price y perCm. */
@@ -49,61 +50,59 @@ window.AED = {
     {
       id: 'aparador',
       type: 'aparador',
-      name: 'Aparador Atacama',
+      name: 'Buffet Boho Atacama',
       kicker: 'Línea Atacama',
-      tagline: 'Puertas de ratán, cajones y herrajes de latón.',
-      desc: 'Aparador de madera nativa con frentes de ratán natural y cajones superiores. Almacenaje de sobra, presencia de pieza de colección.',
+      tagline: 'Puertas de junco, cajones y herrajes de latón.',
+      desc: 'Buffet de diseño Boho con frentes de junco y cajones superiores. Almacenaje de sobra y presencia de pieza de colección.',
       img: 'img/aparador-atacama.jpg',
       hover: 'img/buffet-listones.jpg',
-      gallery: ['img/aparador-atacama.jpg', 'img/buffet-listones.jpg', 'img/buffet-listones-abierto.jpg'],
-      defaults: { width: 180, wood: 'natural', front: 'cane', base: 'legs', handle: 'brass', drawers: true },
-      widths: [140, 160, 180, 200],
-      frontsAllowed: ['cane', 'slats', 'plain'],
-      basesAllowed: ['legs', 'floating'],
+      defaults: { width: 180, wood: 'natural', front: 'cane', base: 'legs', handle: 'brass', drawers: true, depth: 45, height: 90 },
+      widths: [180],
+      frontsAllowed: ['cane', 'slats'],
+      basesAllowed: ['legs'],
       hasDrawers: true,
-      price: { width: 180, price: 489990, perCm: 1900 },
-      specs: ['Madera nativa maciza', 'Alto 86 cm · Fondo 45 cm', 'Ancho a medida']
+      prices: { 180: 1200000 },
+      specs: ['Largo 180 cm · Fondo 45 cm · Alto 90 cm', 'Diseño Boho con puertas de junco', 'Otras medidas: cotiza por WhatsApp']
     },
     {
       id: 'flotante',
       type: 'flotante',
-      name: 'Rack Flotante Bosque',
-      kicker: 'Línea Bosque',
+      name: 'Rack Flotante Boho',
+      kicker: 'Línea Boho',
       tagline: 'Liviano a la vista, firme en la pared.',
-      desc: 'Rack suspendido con frentes de ratán y tiradores de madera. Libera el piso, ordena tu living y deja luz bajo el mueble.',
+      desc: 'Rack flotante Boho de lenga con puertas de junco. Libera el piso y ordena tu living.',
       img: 'img/rack-flotante-bosque.jpg',
-      hover: 'img/flotante-living.jpg',
-      gallery: ['img/rack-flotante-bosque.jpg', 'img/flotante-living.jpg', 'img/flotante-dormitorio.jpg', 'img/flotante-estudio-1.jpg', 'img/flotante-estudio-2.jpg'],
-      defaults: { width: 160, wood: 'natural', front: 'cane', base: 'floating', handle: 'wood', drawers: false },
-      widths: [120, 140, 160, 180, 200],
-      frontsAllowed: ['cane', 'slats', 'plain'],
-      basesAllowed: ['floating', 'legs'],
+      hover: 'img/flotante-real.jpg',
+      defaults: { width: 180, wood: 'natural', front: 'cane', base: 'floating', handle: 'brass', drawers: false, depth: 35, height: 45 },
+      widths: [180, 200],
+      frontsAllowed: ['cane'],
+      basesAllowed: ['floating'],
       hasDrawers: false,
-      price: { width: 160, price: 359990, perCm: 1500 },
-      specs: ['Madera nativa maciza', 'Alto 42 cm · Fondo 38 cm', 'Incluye kit de anclaje']
+      prices: { 180: 800000, 200: 900000 },
+      specs: ['Lenga con puertas de junco', 'Largo 180 o 200 cm · Fondo 35 cm · Alto 45 cm', 'Incluye kit de anclaje']
     },
     {
       id: 'rack-tv',
       type: 'tv',
-      name: 'Rack TV Nativo',
+      name: 'Rack TV Roble Nacional',
       kicker: 'Línea Nativa',
       tagline: 'Veta a la vista, nicho abierto y cajones.',
-      desc: 'Mueble de TV de madera nativa con nicho abierto para equipos y tres cajones amplios. Cantos limpios y veta continua.',
+      desc: 'Rack de TV en roble nacional vaporizado, con nicho abierto para equipos y tres cajones amplios.',
       img: 'img/rack-tv-nativo-ambiente.jpg',
       hover: 'img/rack-tv-nativo-real.jpg',
-      gallery: ['img/rack-tv-nativo-ambiente.jpg', 'img/rack-tv-nativo-real.jpg'],
-      defaults: { width: 150, wood: 'miel', front: 'plain', base: 'floor', handle: 'wood', drawers: false },
-      widths: [120, 150, 180],
-      frontsAllowed: ['plain', 'slats'],
-      basesAllowed: ['floor', 'floating'],
+      defaults: { width: 150, wood: 'miel', front: 'plain', base: 'floor', handle: 'wood', drawers: false, depth: 45, height: 65 },
+      widths: [150, 200],
+      frontsAllowed: ['plain'],
+      basesAllowed: ['floor'],
       hasDrawers: false,
-      price: { width: 150, price: 329990, perCm: 1400 },
-      specs: ['Madera nativa maciza', 'Alto 55 cm · Fondo 42 cm', 'Nicho abierto + 3 cajones']
+      prices: { 150: 1000000, 200: 1200000 },
+      specs: ['Roble nacional vaporizado', 'Largo 150 o 200 cm · Fondo 45 cm · Alto 65 cm', 'Nicho abierto + 3 cajones']
     }
   ],
 
   gallery: [
-    { src: 'img/flotante-dormitorio.jpg', alt: 'Rack flotante de ratán en dormitorio' },
+    { src: 'img/flotante-real.jpg', alt: 'Rack flotante Boho de lenga con puertas de junco' },
+    { src: 'img/flotante-dormitorio.jpg', alt: 'Rack flotante de junco en dormitorio' },
     { src: 'img/buffet-listones.jpg', alt: 'Buffet de listones en dormitorio rústico' },
     { src: 'img/rack-tv-nativo-ambiente.jpg', alt: 'Rack TV en living con vista al bosque' },
     { src: 'img/flotante-living.jpg', alt: 'Rack flotante frente a ventanal' },

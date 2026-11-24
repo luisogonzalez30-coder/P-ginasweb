@@ -19,12 +19,12 @@
   try {
     const probe = document.createElement('canvas');
     if (!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) throw new Error('nowebgl');
-    stage = window.AEDStage.createStage(canvas, { dark: true, fit: 2.6, floatY: 0.62, autoRotate: true, theta: 0.3, phi: 1.36, thetaLim: 0.9 });
+    stage = window.AEDStage.createStage(canvas, { dark: true, fit: innerWidth > 760 ? 2.6 : 1.3, floatY: 0.62, autoRotate: true, theta: 0.3, phi: 1.36, thetaLim: 0.9 });
   } catch (err) {
     document.body.classList.add('no-webgl');
   }
   if (!stage) return;
-  const place = () => { stage.mount.position.x = innerWidth > 760 ? 0.95 : 0; };
+  const place = () => { const d = innerWidth > 760; stage.mount.position.x = d ? 0.95 : 0; stage.mount.position.y = d ? 0 : 0.55; };
   place(); addEventListener('resize', place);
 
   /* --- polvo de luz --- */

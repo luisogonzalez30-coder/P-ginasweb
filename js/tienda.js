@@ -7,20 +7,8 @@
   const waUrl = msg => 'https://wa.me/' + A.whatsapp + '?text=' + encodeURIComponent(msg);
 
   /* ---------- precio ---------- */
-  function priceOf(p, c) {
-    const b = p.price;
-    let v = b.price + (c.width - b.width) * b.perCm;
-    v *= 1 + (A.woods[c.wood].pct || 0);
-    v += A.fronts[c.front].add + A.bases[c.base].add + A.handles[c.handle].add;
-    if (p.hasDrawers && c.drawers) v += A.drawersAdd;
-    return Math.round(v / 1000) * 1000;
-  }
-  function minPrice(p) {
-    let m = Infinity;
-    p.widths.forEach(w => p.frontsAllowed.forEach(f => p.basesAllowed.forEach(b =>
-      Object.keys(A.woods).forEach(k => { m = Math.min(m, priceOf(p, { width: w, front: f, base: b, wood: k, handle: 'brass', drawers: false })); }))));
-    return m;
-  }
+  const priceOf = (p, c) => p.prices[c.width];
+  const minPrice = p => Math.min.apply(null, Object.values(p.prices));
   function describe(p, c) {
     const parts = [p.name, c.width + ' cm', 'madera ' + A.woods[c.wood].name, 'frente ' + A.fronts[c.front].name.toLowerCase(), A.bases[c.base].name.toLowerCase()];
     if (p.hasDrawers) parts.push(c.drawers ? 'con cajones' : 'sin cajones');
@@ -28,7 +16,7 @@
   }
   function message(p, c, pay) {
     return 'Hola Arredondo Estudio & Diseño 👋\n' + (pay ? 'Quiero pagar con Mercado Pago este diseño:' : 'Quiero cotizar este diseño:') + '\n• ' +
-      describe(p, c).join('\n• ') + '\nPrecio referencial: ' + clp(priceOf(p, c)) + ' (envío gratis)\n¿Me confirman plazo y disponibilidad?';
+      describe(p, c).join('\n• ') + '\nPrecio: ' + clp(priceOf(p, c)) + ' (envío gratis)\n¿Me confirman plazo y disponibilidad?';
   }
 
   /* ---------- WhatsApp genérico ---------- */
@@ -61,7 +49,7 @@
       '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy"><img src="' + p.hover + '" alt="' + p.name + ' en ambiente" loading="lazy"></div>' +
       '<div class="card__body"><p class="card__kicker">' + p.tagline + '</p><h3>' + p.name + '</h3><p class="card__desc">' + p.desc + '</p>' +
       '<ul class="card__specs">' + p.specs.map(s => '<li>' + s + '</li>').join('') + '</ul>' +
-      '<div class="card__foot"><div class="price"><small>Desde</small><strong>' + clp(minPrice(p)) + '</strong></div>' +
+      '<div class="card__foot"><div class="price"><small>' + (Object.keys(p.prices).length > 1 ? 'Desde' : 'Precio') + '</small><strong>' + clp(minPrice(p)) + '</strong></div>' +
       '<div class="card__actions"><button class="btn btn--primary" data-cfg="' + p.id + '">Personalizar en 3D</button>' +
       '<a class="btn btn--line" target="_blank" rel="noopener" href="' + waUrl('Hola 👋 Me interesa el ' + p.name + '. ¿Me envían información?') + '">Consultar por WhatsApp</a></div></div></div>';
     cards.appendChild(el);
@@ -108,7 +96,7 @@
       '<div class="cfg__price"><span>Tu diseño</span><strong id="cfgPrice">' + clp(priceOf(p, cfg)) + '</strong></div>' +
       '<div class="cfg__ctas"><button class="btn btn--mp btn--block" id="payMp">Pagar con Mercado Pago</button>' +
       '<a class="btn btn--wa btn--block" id="quoteWa" target="_blank" rel="noopener" href="' + waUrl(message(p, cfg)) + '">Cotizar por WhatsApp</a></div>' +
-      '<p class="cfg__fine">Envío gratis a todo Chile · ' + A.anticipoPct + '% inicia la fabricación · Precio referencial</p></div>';
+      '<p class="cfg__fine">Envío gratis a todo Chile · Otras medidas y acabados se cotizan</p></div>';
     tabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b.dataset.id === p.id));
   }
 
