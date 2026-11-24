@@ -1,0 +1,163 @@
+(function () {
+  'use strict';
+  const A = window.AED;
+  document.documentElement.classList.add('js');
+  const $ = (s, r) => (r || document).querySelector(s);
+  const clp = n => '$' + Math.round(n).toLocaleString('es-CL');
+  const waUrl = msg => 'https://wa.me/' + A.whatsapp + '?text=' + encodeURIComponent(msg);
+
+  /* ---------- precio ---------- */
+  function priceOf(p, c) {
+    const b = p.price;
+    let v = b.price + (c.width - b.width) * b.perCm;
+    v *= 1 + (A.woods[c.wood].pct || 0);
+    v += A.fronts[c.front].add + A.bases[c.base].add + A.handles[c.handle].add;
+    if (p.hasDrawers && c.drawers) v += A.drawersAdd;
+    return Math.round(v / 1000) * 1000;
+  }
+  function minPrice(p) {
+    let m = Infinity;
+    p.widths.forEach(w => p.frontsAllowed.forEach(f => p.basesAllowed.forEach(b =>
+      Object.keys(A.woods).forEach(k => { m = Math.min(m, priceOf(p, { width: w, front: f, base: b, wood: k, handle: 'brass', drawers: false })); }))));
+    return m;
+  }
+  function describe(p, c) {
+    const parts = [p.name, c.width + ' cm', 'madera ' + A.woods[c.wood].name, 'frente ' + A.fronts[c.front].name.toLowerCase(), A.bases[c.base].name.toLowerCase()];
+    if (p.hasDrawers) parts.push(c.drawers ? 'con cajones' : 'sin cajones');
+    return parts;
+  }
+  function message(p, c, pay) {
+    return 'Hola Arredondo Estudio & Diseño 👋\n' + (pay ? 'Quiero pagar con Mercado Pago este diseño:' : 'Quiero cotizar este diseño:') + '\n• ' +
+      describe(p, c).join('\n• ') + '\nPrecio referencial: ' + clp(priceOf(p, c)) + ' (envío gratis)\n¿Me confirman plazo y disponibilidad?';
+  }
+
+  /* ---------- WhatsApp genérico ---------- */
+  document.querySelectorAll('[data-wa]').forEach(a => {
+    a.href = waUrl('Hola Arredondo Estudio & Diseño 👋 Quiero cotizar un mueble de madera nativa a medida.');
+  });
+
+  /* ---------- marquee ---------- */
+  const msgs = [
+    ['ENVÍO GRATIS', 'a todo Chile'],
+    ['PAGA CON MERCADO PAGO', 'con todo medio de pago'],
+    ['DISEÑA TU MUEBLE EN 3D', 'a tu medida'],
+    ['WHATSAPP DIRECTO', 'cotiza en minutos'],
+    ['MADERA NATIVA MACIZA', 'carpintería chilena']
+  ];
+  const mk = () => msgs.map(m => '<span class="marquee__item"><b>' + m[0] + '</b> ' + m[1] + '<i>◆</i></span>').join('');
+  $('#marquee').innerHTML = mk() + mk() + mk() + mk();
+
+  /* ---------- nav móvil ---------- */
+  const burger = $('#burger'), links = $('#navLinks');
+  burger.addEventListener('click', () => { const o = links.classList.toggle('open'); burger.setAttribute('aria-expanded', o); });
+  links.addEventListener('click', e => { if (e.target.tagName === 'A') { links.classList.remove('open'); burger.setAttribute('aria-expanded', false); } });
+
+  /* ---------- tarjetas ---------- */
+  const cards = $('#cards');
+  A.products.forEach((p, i) => {
+    const el = document.createElement('article'); el.className = 'card reveal'; el.style.transitionDelay = (i * 90) + 'ms';
+    el.innerHTML =
+      '<div class="card__media"><span class="card__badge">0' + (i + 1) + ' · ' + p.kicker + '</span>' +
+      '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy"><img src="' + p.hover + '" alt="' + p.name + ' en ambiente" loading="lazy"></div>' +
+      '<div class="card__body"><p class="card__kicker">' + p.tagline + '</p><h3>' + p.name + '</h3><p class="card__desc">' + p.desc + '</p>' +
+      '<ul class="card__specs">' + p.specs.map(s => '<li>' + s + '</li>').join('') + '</ul>' +
+      '<div class="card__foot"><div class="price"><small>Desde</small><strong>' + clp(minPrice(p)) + '</strong></div>' +
+      '<div class="card__actions"><button class="btn btn--primary" data-cfg="' + p.id + '">Personalizar en 3D</button>' +
+      '<a class="btn btn--line" target="_blank" rel="noopener" href="' + waUrl('Hola 👋 Me interesa el ' + p.name + '. ¿Me envían información?') + '">Consultar por WhatsApp</a></div></div></div>';
+    cards.appendChild(el);
+  });
+  cards.addEventListener('click', e => {
+    const b = e.target.closest('[data-cfg]'); if (!b) return;
+    select(b.dataset.cfg); $('#configurador').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  /* ---------- galería / faq ---------- */
+  $('#gal').innerHTML = A.gallery.map(g => '<figure class="reveal"><img src="' + g.src + '" alt="' + g.alt + '" loading="lazy"></figure>').join('');
+  $('#faq-list').innerHTML = A.faq.map(f => '<details class="reveal"><summary>' + f[0] + '</summary><p>' + f[1] + '</p></details>').join('');
+
+  /* ---------- configurador ---------- */
+  const tabs = $('#cfgTabs'), panel = $('#cfgPanel'), canvas = $('#cfgCanvas');
+  let stage = null, cur = A.products[0], cfg = Object.assign({}, cur.defaults);
+
+  A.products.forEach(p => {
+    const b = document.createElement('button'); b.role = 'tab'; b.textContent = p.name; b.dataset.id = p.id;
+    b.addEventListener('click', () => select(p.id)); tabs.appendChild(b);
+  });
+
+  try {
+    const probe = document.createElement('canvas');
+    if (!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) throw 0;
+    stage = window.AEDStage.createStage(canvas, { dark: false, autoRotate: true, fit: 1.6 });
+  } catch (e) { $('#noGl').hidden = false; canvas.style.display = 'none'; }
+
+  const optBtns = (key, ids, map) =>
+    '<div class="seg" data-key="' + key + '">' + ids.map(id => '<button data-v="' + id + '" class="' + (String(cfg[key]) === String(id) ? 'on' : '') + '">' + map(id) + '</button>').join('') + '</div>';
+
+  function render() {
+    const p = cur;
+    panel.innerHTML =
+      '<div class="cfg__title"><small>' + p.kicker + '</small>' + p.name + '</div>' +
+      '<div class="opt"><h4>Madera <em>' + A.woods[cfg.wood].name + '</em></h4><div class="sw" data-key="wood">' +
+      Object.keys(A.woods).map(k => '<button data-v="' + k + '" class="' + (cfg.wood === k ? 'on' : '') + '" style="background:' + A.woods[k].hex + '" aria-label="' + A.woods[k].name + '"></button>').join('') + '</div></div>' +
+      '<div class="opt"><h4>Ancho <em>' + cfg.width + ' cm</em></h4>' + optBtns('width', p.widths, w => w + ' cm') + '</div>' +
+      '<div class="opt"><h4>Frente</h4>' + optBtns('front', p.frontsAllowed, id => A.fronts[id].name) + '</div>' +
+      '<div class="opt"><h4>Base</h4>' + optBtns('base', p.basesAllowed, id => A.bases[id].name) + '</div>' +
+      (p.hasDrawers ? '<div class="opt"><h4>Cajones superiores</h4>' + optBtns('drawers', [true, false], v => v ? 'Con cajones' : 'Sin cajones') + '</div>' : '') +
+      '<div class="opt"><h4>Herrajes</h4>' + optBtns('handle', ['brass', 'wood'], id => A.handles[id].name) + '</div>' +
+      '<div class="cfg__sum"><ul>' + describe(p, cfg).slice(1).map(s => '<li>' + s + '</li>').join('') + '</ul>' +
+      '<div class="cfg__price"><span>Tu diseño</span><strong id="cfgPrice">' + clp(priceOf(p, cfg)) + '</strong></div>' +
+      '<div class="cfg__ctas"><button class="btn btn--mp btn--block" id="payMp">Pagar con Mercado Pago</button>' +
+      '<a class="btn btn--wa btn--block" id="quoteWa" target="_blank" rel="noopener" href="' + waUrl(message(p, cfg)) + '">Cotizar por WhatsApp</a></div>' +
+      '<p class="cfg__fine">Envío gratis a todo Chile · ' + A.anticipoPct + '% inicia la fabricación · Precio referencial</p></div>';
+    tabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b.dataset.id === p.id));
+  }
+
+  function apply(bump) {
+    if (stage) stage.setCabinet(Object.assign({ type: cur.type }, cfg));
+    const pr = $('#cfgPrice'), q = $('#quoteWa');
+    pr.textContent = clp(priceOf(cur, cfg));
+    if (bump) { pr.classList.add('bump'); setTimeout(() => pr.classList.remove('bump'), 350); }
+    q.href = waUrl(message(cur, cfg));
+    const t = $('.cfg__sum ul'); t.innerHTML = describe(cur, cfg).slice(1).map(s => '<li>' + s + '</li>').join('');
+  }
+
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if (b) {
+      const key = b.parentElement.dataset.key; let v = b.dataset.v;
+      if (key === 'width') v = +v; if (key === 'drawers') v = v === 'true';
+      cfg[key] = v;
+      b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      const h = b.parentElement.previousElementSibling; // actualiza etiqueta
+      if (key === 'width') h.querySelector('em').textContent = v + ' cm';
+      if (key === 'wood') h.querySelector('em').textContent = A.woods[v].name;
+      apply(true); return;
+    }
+    if (e.target.id === 'payMp') {
+      if (A.mercadoPagoUrl) window.open(A.mercadoPagoUrl, '_blank', 'noopener');
+      else window.open(waUrl(message(cur, cfg, true)), '_blank', 'noopener');
+    }
+  });
+
+  function select(id) {
+    cur = A.products.find(p => p.id === id) || A.products[0];
+    cfg = Object.assign({}, cur.defaults);
+    render(); apply(false);
+    if (stage) { stage.resetView(); stage.getCabinet().openAll(false); }
+  }
+
+  $('#zIn').addEventListener('click', () => stage && stage.setZoom(stage.getZoom() - 0.15));
+  $('#zOut').addEventListener('click', () => stage && stage.setZoom(stage.getZoom() + 0.15));
+  $('#resetView').addEventListener('click', () => stage && stage.resetView());
+  let opened = false;
+  $('#openAll').addEventListener('click', e => {
+    if (!stage) return; opened = !opened; stage.getCabinet().openAll(opened); e.target.textContent = opened ? 'Cerrar' : 'Abrir';
+  });
+  select(A.products[0].id);
+
+  /* ---------- reveal ---------- */
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  } else document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+})();
