@@ -64,7 +64,7 @@ window.AED = {
       frontsAllowed: ['cane'],
       basesAllowed: ['legs'],
       hasDrawers: true,
-      prices: { 180: 1200000 },
+      prices: { 180: 1100000 },
       specs: ['Largo 180 cm · Fondo 45 cm · Alto 90 cm', 'Diseño Boho con puertas de junco', 'Otras medidas: cotiza por WhatsApp']
     },
     {
@@ -116,9 +116,25 @@ window.AED = {
       frontsAllowed: ['plain'],
       basesAllowed: ['floor'],
       hasDrawers: false,
-      prices: { 150: 1000000, 200: 1200000 },
+      prices: { 150: 900000, 200: 1100000 },
       specs: ['Roble nacional vaporizado', 'Largo 150 o 200 cm · Fondo 45 cm · Alto 65 cm', 'Nicho abierto + 3 cajones']
     }
+  ],
+
+  works: [
+    { src: 'img/trabajos/t06.jpg', title: 'Aparador de junco' },
+    { src: 'img/trabajos/t12.jpg', title: 'Rack TV de junco y latón' },
+    { src: 'img/trabajos/t10.jpg', title: 'Rack TV con cajones' },
+    { src: 'img/trabajos/t03.jpg', title: 'Vitrina con luz LED' },
+    { src: 'img/trabajos/t11.jpg', title: 'Vinoteca con vitrinas' },
+    { src: 'img/trabajos/t05.jpg', title: 'Vanitorio doble' },
+    { src: 'img/trabajos/t01.jpg', title: 'Muebles de cocina' },
+    { src: 'img/trabajos/t13.jpg', title: 'Vitrina con puertas de vidrio' },
+    { src: 'img/trabajos/t02.jpg', title: 'Vanitorio con cajones' },
+    { src: 'img/trabajos/t07.jpg', title: 'Vanitorio doble' },
+    { src: 'img/trabajos/t04.jpg', title: 'Vitrina con cajón y LED' },
+    { src: 'img/trabajos/t08.jpg', title: 'Vanitorio doble' },
+    { src: 'img/trabajos/t09.jpg', title: 'Rack TV de junco' }
   ],
 
   gallery: [
