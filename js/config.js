@@ -13,6 +13,9 @@ window.AED = {
   // WhatsApp +56 9 7242 2825 (formato internacional sin "+")
   whatsapp: '56972422825',
 
+  // Mensualidad de la página web (la gestiona /api/estado; ver docs/MENSUALIDAD.md)
+  mensualidad: { payUrl: 'https://mpago.la/27s4bGN' },
+
   instagram: { url: 'https://www.instagram.com/germanarredondonativos', handle: '@germanarredondonativos' },
 
   // ⚠️ REEMPLAZAR: link de pago de Mercado Pago (checkout pro / link de pago).
