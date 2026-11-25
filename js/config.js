@@ -14,7 +14,7 @@ window.AED = {
   whatsapp: '56972422825',
 
   // Mensualidad de la página web (la gestiona /api/estado; ver docs/MENSUALIDAD.md)
-  mensualidad: { payUrl: 'https://mpago.la/27s4bGN' },
+  mensualidad: { payUrl: 'https://mpago.la/1oHEuye' },
 
   instagram: { url: 'https://www.instagram.com/germanarredondonativos', handle: '@germanarredondonativos' },
 
