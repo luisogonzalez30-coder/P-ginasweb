@@ -42,6 +42,15 @@ module.exports = async (req, res) => {
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).end(JSON.stringify({ ...base, estado: q.simular, dueno }));
     }
+    // diagnóstico solo para el dueño: lista los últimos pagos aprobados (sin datos del pagador) para elegir MP_MATCH
+    if (dueno && q.debug) {
+      res.setHeader('Cache-Control', 'no-store');
+      if (!process.env.MP_ACCESS_TOKEN) return res.status(200).end(JSON.stringify({ debug: 'Falta MP_ACCESS_TOKEN' }));
+      const d = new Date(ahora - 40 * 86400e3).toISOString(), h = new Date(ahora).toISOString();
+      const r = await fetch('https://api.mercadopago.com/v1/payments/search?sort=date_approved&criteria=desc&status=approved&range=date_approved&limit=15&begin_date=' + encodeURIComponent(d) + '&end_date=' + encodeURIComponent(h), { headers: { Authorization: 'Bearer ' + process.env.MP_ACCESS_TOKEN } });
+      const j = await r.json();
+      return res.status(200).end(JSON.stringify({ http: r.status, MP_MATCH: process.env.MP_MATCH ? 'definida' : 'no definida', pagos: (j.results || []).map(p => ({ fecha: p.date_approved, monto: p.transaction_amount, descripcion: p.description, referencia: p.external_reference || null })) }));
+    }
     if (!cache.estado || ahora - cache.t > 5 * 60e3) {
       const pagos = await pagosAprobados(ahora);
       cache = { t: ahora, estado: pagos === null ? { estado: 'ok', vence: null, dias: 0, diasBloqueo: 0, pagado: true } : calcular(ahora, pagos, process.env.BILLING_START || '2026-12-10') };
