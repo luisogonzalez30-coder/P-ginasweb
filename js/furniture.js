@@ -11,6 +11,8 @@
   const T = g.THREE;
 
   const WOODS = {
+    rauli:   { base: '#b86b3a', dark: '#7a3d1a' },
+    coigue:  { base: '#d6a46a', dark: '#a8723a' },
     natural: { base: '#d6a46a', dark: '#a8723a' },
     lenga:   { base: '#e3bb8c', dark: '#b98a55' },
     miel:    { base: '#c27f40', dark: '#8c5222' },
@@ -239,7 +241,7 @@
       box(grp, 0.012, h * 0.78, dep, darkIn, w / 2 - 0.03, 0, z0 - 0.022 - dep / 2, false);
       box(grp, w - 0.06, 0.01, dep, darkIn, 0, -h * 0.39, z0 - 0.022 - dep / 2, false);
       box(grp, w - 0.06, h * 0.78, 0.01, darkIn, 0, 0, z0 - 0.022 - dep, false);
-      if (withHandle) {
+      if (withHandle && cfg.handle !== 'none') {
         const hb = new T.Mesh(new T.CylinderGeometry(0.0055, 0.0055, Math.min(0.17, w * 0.5), 12), handleMat);
         hb.rotation.z = Math.PI / 2; hb.position.set(0, h * 0.18, z0 + 0.016); hb.castShadow = true; grp.add(hb);
         [-1, 1].forEach(s => { const st = new T.Mesh(new T.CylinderGeometry(0.003, 0.003, 0.016, 8), handleMat); st.rotation.x = Math.PI / 2; st.position.set(s * Math.min(0.17, w * 0.5) * 0.4, h * 0.18, z0 + 0.008); grp.add(st); });
@@ -296,7 +298,8 @@
         /* tiradores (según las fotos) */
         const edge = (left ? 1 : -1) * (dw / 2 - 0.045);
         const hasInnerEdge = slatsStyle ? false : true;
-        if (!slatsStyle && type === 'aparador') {
+        if (cfg.handle === 'none') { /* push to open */ }
+        else if (!slatsStyle && type === 'aparador') {
           const L = Math.min(0.24, dH * 0.42);
           const bar = new T.Mesh(new T.CylinderGeometry(0.0065, 0.0065, L, 12), handleMat);
           bar.position.set(edge + (left ? 0.012 : -0.012), 0, TH / 2 + 0.02); bar.castShadow = true; door.add(bar);

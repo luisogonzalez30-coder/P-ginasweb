@@ -14,6 +14,8 @@
 
   /* ---------- precio ---------- */
   const priceOf = (p, c) => (p.prices[c.width] == null ? null : p.prices[c.width]);
+  const mpFor = (p, c) => (p.mp && p.mp[c.width]) || '';
+  const cheapMp = p => { const k = Object.keys(p.prices).sort((a, b) => p.prices[a] - p.prices[b])[0]; return p.mp && k ? p.mp[k] : ''; };
   const hasPrice = p => Object.keys(p.prices).length > 0;
   const minPrice = p => Math.min.apply(null, Object.values(p.prices));
   const priceTxt = (p, c) => (priceOf(p, c) == null ? 'A cotizar' : clp(priceOf(p, c)));
@@ -21,6 +23,7 @@
     const parts = [p.name, c.width + ' cm', 'madera ' + A.woods[c.wood].name, 'frente ' + A.fronts[c.front].name.toLowerCase(), A.bases[c.base].name.toLowerCase()];
     if (p.hasDrawers && c.front === 'cane') parts.push(c.drawers ? 'con cajones' : 'sin cajones');
     if (p.hasLed && c.led) parts.push('con luz LED inferior');
+    if (c.handle === 'none') parts.push('sin tiradores');
     return parts;
   }
   function message(p, c, pay) {
@@ -59,7 +62,7 @@
       '<div class="card__body"><p class="card__kicker">' + p.tagline + '</p><h3>' + p.name + '</h3><p class="card__desc">' + p.desc + '</p>' +
       '<ul class="card__specs">' + p.specs.map(s => '<li>' + s + '</li>').join('') + '</ul>' +
       '<div class="card__foot"><div class="price">' + (hasPrice(p) ? '<small>' + (Object.keys(p.prices).length > 1 ? 'Desde' : 'Precio') + '</small><strong>' + clp(minPrice(p)) + '</strong>' : '<small>Precio</small><strong>A cotizar</strong>') + '</div>' +
-      '<div class="card__actions"><button class="btn btn--primary" data-cfg="' + p.id + '">Personalizar en 3D</button>' +
+      '<div class="card__actions">' + (cheapMp(p) ? '<a class="btn btn--mp" target="_blank" rel="noopener" href="' + cheapMp(p) + '">Comprar con Mercado Pago</a>' : '') + '<button class="btn btn--primary" data-cfg="' + p.id + '">Personalizar en 3D</button>' +
       '<a class="btn btn--line" target="_blank" rel="noopener" href="' + waUrl('Hola 👋 Me interesa el ' + p.name + '. ¿Me envían información?') + '">Consultar por WhatsApp</a></div></div></div>';
     cards.appendChild(el);
   });
@@ -97,19 +100,19 @@
     if (p.hasDrawers && cfg.front !== 'cane') cfg.drawers = false;
     panel.innerHTML =
       '<div class="cfg__title"><small>' + p.kicker + '</small>' + p.name + '</div>' +
-      '<div class="opt"><h4>Acabado <em>' + A.woods[cfg.wood].name + '</em></h4><div class="sw" data-key="wood">' +
-      Object.keys(A.woods).map(k => '<button data-v="' + k + '" class="' + (cfg.wood === k ? 'on' : '') + '" style="background:' + A.woods[k].hex + '" aria-label="' + A.woods[k].name + '"></button>').join('') + '</div></div>' +
+      '<div class="opt"><h4>Madera <em>' + A.woods[cfg.wood].name + '</em></h4><div class="sw" data-key="wood">' +
+      Object.keys(A.woods).map(k => '<button data-v="' + k + '" class="' + (cfg.wood === k ? 'on' : '') + '" style="background:' + A.woods[k].hex + '" aria-label="' + A.woods[k].name + '"></button>').join('') + '</div><p class="cfg__note">' + A.woodsNote + '</p></div>' +
       group('Largo <em>' + cfg.width + ' cm</em>', optBtns('width', p.widths, w => w + ' cm'), p.widths.length > 1) +
       group('Frente', optBtns('front', p.frontsAllowed, id => A.fronts[id].name), p.frontsAllowed.length > 1) +
       group('Base', optBtns('base', p.basesAllowed, id => A.bases[id].name), p.basesAllowed.length > 1) +
       group('Cajones superiores', optBtns('drawers', [true, false], v => v ? 'Con cajones' : 'Sin cajones'), p.hasDrawers && cfg.front === 'cane') +
       group('Luz LED inferior', optBtns('led', [true, false], v => v ? 'Encendida' : 'Apagada'), !!p.hasLed) +
-      group('Herrajes', optBtns('handle', ['brass', 'wood'], id => A.handles[id].name), p.type === 'aparador' || p.type === 'flotante') +
+      group('Herrajes', optBtns('handle', p.handlesAllowed || ['brass', 'wood'], id => ((p.handleLabels && p.handleLabels[id]) || A.handles[id].name)), p.type === 'aparador' || p.type === 'flotante') +
       '<div class="cfg__sum"><ul>' + describe(p, cfg).slice(1).map(s => '<li>' + s + '</li>').join('') + '</ul>' +
       '<div class="cfg__price"><span>Tu diseño</span><strong id="cfgPrice">' + priceTxt(p, cfg) + '</strong></div>' +
       '<div class="cfg__ctas">' + (priceOf(p, cfg) == null ? '' : '<button class="btn btn--mp btn--block" id="payMp">Pagar con Mercado Pago</button>') +
       '<a class="btn btn--wa btn--block" id="quoteWa" target="_blank" rel="noopener" href="' + waUrl(message(p, cfg)) + '">Cotizar por WhatsApp</a></div>' +
-      '<p class="cfg__fine">Envío gratis a todo Chile · Otras medidas y acabados se cotizan</p></div>';
+      '<p class="cfg__fine" id="payHint"></p></div>';
     tabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b.dataset.id === p.id));
   }
 
@@ -119,6 +122,7 @@
     pr.textContent = priceTxt(cur, cfg);
     if (bump) { pr.classList.add('bump'); setTimeout(() => pr.classList.remove('bump'), 350); }
     q.href = waUrl(message(cur, cfg));
+    const ph = $('#payHint'); if (ph) ph.textContent = 'Envío gratis a todo Chile · ' + (priceOf(cur, cfg) != null && !mpFor(cur, cfg) ? 'Para este largo te enviamos el link de pago por WhatsApp' : 'Pago seguro con Mercado Pago');
     const t = $('.cfg__sum ul'); t.innerHTML = describe(cur, cfg).slice(1).map(s => '<li>' + s + '</li>').join('');
   }
 
@@ -136,7 +140,8 @@
       apply(true); return;
     }
     if (e.target.id === 'payMp') {
-      if (A.mercadoPagoUrl) window.open(A.mercadoPagoUrl, '_blank', 'noopener');
+      const link = mpFor(cur, cfg);
+      if (link) window.open(link, '_blank', 'noopener');
       else window.open(waUrl(message(cur, cfg, true)), '_blank', 'noopener');
     }
   });

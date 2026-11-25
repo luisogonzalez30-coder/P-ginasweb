@@ -262,3 +262,5 @@
   .cflow__track { --sw: 68vw; }
   .cflow__nav { width: 42px; height: 42px; font-size: 24px; top: 36%; }
 }
+
+.cfg__note { margin: 10px 0 0; font-size: 12px; color: rgba(23, 17, 12, .6); }

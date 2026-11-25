@@ -24,14 +24,14 @@ window.AED = {
 
   /* ---------- Opciones de materialidad (recargo sobre el precio base) ---------- */
   // Los precios son fijos por producto y ancho (ver products[].prices). Las opciones visuales no alteran el precio.
+  // Mismo valor para las 4 maderas (confirmado por el taller)
   woods: {
-    natural: { name: 'Natural',  hex: '#d6a46a' },
-    lenga:   { name: 'Lenga',    hex: '#e3bb8c' },
-    miel:    { name: 'Miel',     hex: '#c27f40' },
-    roble:   { name: 'Roble',    hex: '#a85f33' },
-    nogal:   { name: 'Nogal',    hex: '#7d4f31' },
-    ebano:   { name: 'Ébano',    hex: '#43332b' }
+    lenga:  { name: 'Lenga',          hex: '#e3bb8c' },
+    rauli:  { name: 'Raulí',          hex: '#b86b3a' },
+    coigue: { name: 'Coigüe',         hex: '#d6a46a' },
+    roble:  { name: 'Roble nacional', hex: '#a85f33' }
   },
+  woodsNote: 'Mismo valor en Lenga, Raulí, Coigüe y Roble nacional',
   fronts: {
     cane:  { name: 'Junco',    add: 0 },
     slats: { name: 'Puertas ranuradas', add: 0 },
@@ -44,12 +44,13 @@ window.AED = {
   },
   handles: {
     brass: { name: 'Latón',  add: 0 },
-    wood:  { name: 'Madera', add: 0 }
+    wood:  { name: 'Madera', add: 0 },
+    none:  { name: 'Sin tiradores', add: 0 }
   },
   drawersAdd: 0,
 
   /* ---------- Productos ----------
-     ⚠️ LOS PRECIOS SON DE EJEMPLO (CLP). Ajusta base.price y perCm. */
+     prices = precio CLP por largo (cm) · mp = link de pago de Mercado Pago por largo (del taller) */
   products: [
     {
       id: 'aparador',
@@ -59,13 +60,16 @@ window.AED = {
       tagline: 'Puertas de junco, cajones y herrajes de latón.',
       desc: 'Buffet de diseño Boho con frentes de junco y cajones superiores. Almacenaje de sobra y presencia de pieza de colección.',
       img: 'img/aparador-atacama.jpg',
-      defaults: { width: 180, wood: 'natural', front: 'cane', base: 'legs', handle: 'brass', drawers: true, depth: 45, height: 90 },
+      defaults: { width: 180, wood: 'coigue', front: 'cane', base: 'legs', handle: 'brass', drawers: true, depth: 45, height: 90 },
       widths: [180],
       frontsAllowed: ['cane'],
       basesAllowed: ['legs'],
       hasDrawers: true,
+      handlesAllowed: ['brass', 'none'],
+      handleLabels: { brass: 'Con tiradores', none: 'Sin tiradores' },
       prices: { 180: 1100000 },
-      specs: ['Largo 180 cm · Fondo 45 cm · Alto 90 cm', 'Diseño Boho con puertas de junco', 'Otras medidas: cotiza por WhatsApp']
+      mp: { 180: 'https://mpago.la/2iH29Pg' },
+      specs: ['Largo 180 cm · Fondo 45 cm · Alto 90 cm', 'Con o sin tirador', 'Lenga, Raulí, Coigüe o Roble nacional (mismo valor)']
     },
     {
       id: 'nordico',
@@ -76,13 +80,14 @@ window.AED = {
       desc: 'Diseño nórdico de puertas ranuradas con cierre push to open y estructura cascada: las vetas de la madera nativa cruzan desde un lateral, pasan por la cubierta y terminan en el otro lateral, para apreciar vetas continuas en la madera que elijas.',
       img: 'img/nordico-real.jpg',
       hover: 'img/buffet-listones.jpg',
-      defaults: { width: 180, wood: 'lenga', front: 'slats', base: 'legs', handle: 'wood', drawers: false, depth: 45, height: 75 },
-      widths: [150, 180, 200],
+      defaults: { width: 180, wood: 'lenga', front: 'slats', base: 'legs', handle: 'wood', drawers: false, depth: 45, height: 80 },
+      widths: [180],
       frontsAllowed: ['slats'],
       basesAllowed: ['legs'],
       hasDrawers: false,
-      prices: {},
-      specs: ['Cierre push to open (sin tiradores)', 'Estructura cascada: veta continua', 'Madera nativa y medidas a elegir']
+      prices: { 180: 1100000 },
+      mp: { 180: 'https://mpago.la/1S4TvCo' },
+      specs: ['Largo 180 cm · Fondo 45 cm · Alto 80 cm', 'Puertas acanaladas, apertura push to open', 'Lenga, Raulí, Coigüe o Roble nacional (mismo valor)']
     },
     {
       id: 'flotante',
@@ -100,7 +105,8 @@ window.AED = {
       hasDrawers: false,
       hasLed: true,
       prices: { 180: 800000, 200: 900000 },
-      specs: ['Lenga con puertas de junco', 'Largo 180 o 200 cm · Fondo 35 cm · Alto 45 cm', 'Incluye kit de anclaje']
+      mp: { 180: 'https://mpago.la/1AQQ3VD' },
+      specs: ['Puertas de junco · Largo 180 o 200 cm', 'Fondo 35 cm · Alto 45 cm · Incluye kit de anclaje', 'Lenga, Raulí, Coigüe o Roble nacional (mismo valor)']
     },
     {
       id: 'rack-tv',
@@ -108,7 +114,7 @@ window.AED = {
       name: 'Rack TV Roble Nacional',
       kicker: 'Línea Nativa',
       tagline: 'Veta a la vista, nicho abierto y cajones.',
-      desc: 'Rack de TV en roble nacional vaporizado, con nicho abierto para equipos y tres cajones amplios.',
+      desc: 'Rack de TV en roble nacional vaporizado, con nicho abierto para equipos y tres cajones amplios. También en lenga, raulí o coigüe.',
       img: 'img/rack-tv-nativo-ambiente.jpg',
       hover: 'img/rack-tv-nativo-real.jpg',
       defaults: { width: 150, wood: 'roble', front: 'plain', base: 'floor', handle: 'wood', drawers: false, depth: 45, height: 65 },
@@ -116,8 +122,9 @@ window.AED = {
       frontsAllowed: ['plain'],
       basesAllowed: ['floor'],
       hasDrawers: false,
-      prices: { 150: 900000, 200: 1100000 },
-      specs: ['Roble nacional vaporizado', 'Largo 150 o 200 cm · Fondo 45 cm · Alto 65 cm', 'Nicho abierto + 3 cajones']
+      prices: { 150: 900000, 200: 990000 },
+      mp: { 150: 'https://mpago.la/1a3YBfX', 200: 'https://mpago.la/31kQGA5' },
+      specs: ['Roble nacional vaporizado · Largo 150 o 200 cm', 'Fondo 45 cm · Alto 65 cm · Nicho abierto + 3 cajones', 'Lenga, Raulí, Coigüe o Roble nacional (mismo valor)']
     }
   ],
 
